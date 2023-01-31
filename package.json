@@ -1,7 +1,6 @@
 {
-  "name": "octodrive-sdk",
+  "name": "@octodev/octodrive-sdk",
   "version": "0.1.0",
-  "private": true,
   "description": "OctoDrive - Security-first fully encrypted file storage service",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +9,11 @@
     "lint": "eslint .",
     "test": "jest"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octodevs/octodrive-sdk.git"
+  },
+  "files": ["dist/**/*"],
   "author": "Minhyeok Park<pmh_only@pmh.codes>",
   "license": "MIT",
   "devDependencies": {

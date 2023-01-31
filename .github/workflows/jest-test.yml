@@ -1,0 +1,19 @@
+name: Run jest unit test
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+jobs:
+  run-jest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npx pnpm i
+      - run: npx pnpm test
+  
