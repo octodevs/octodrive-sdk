@@ -2,7 +2,9 @@ lockfileVersion: 5.4
 
 specifiers:
   '@jest/globals': ^29.4.1
+  '@types/crypto-js': ^4.1.1
   '@typescript-eslint/eslint-plugin': ^5.0.0
+  crypto-js: ^4.1.1
   eslint: ^8.33.0
   eslint-config-prettier: ^8.6.0
   eslint-config-standard-with-typescript: ^33.0.0
@@ -15,8 +17,12 @@ specifiers:
   ts-jest: ^29.0.5
   typescript: ^4.9.4
 
+dependencies:
+  crypto-js: 4.1.1
+
 devDependencies:
   '@jest/globals': 29.4.1
+  '@types/crypto-js': 4.1.1
   '@typescript-eslint/eslint-plugin': 5.49.0_zkdaqh7it7uc4cvz2haft7rc6u
   eslint: 8.33.0
   eslint-config-prettier: 8.6.0_eslint@8.33.0
@@ -742,6 +748,10 @@ packages:
       '@babel/types': 7.20.7
     dev: true
 
+  /@types/crypto-js/4.1.1:
+    resolution: {integrity: sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==}
+    dev: true
+
   /@types/graceful-fs/4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
@@ -1279,6 +1289,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /crypto-js/4.1.1:
+    resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
+    dev: false
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}

@@ -19,7 +19,7 @@
 
 */
 
-import { MagicByteInvalidError, MappingInvalidError } from './MetadataErrors'
+import { MagicByteInvalidError, MappingInvalidError } from '../Exceptions'
 
 // Metadata is-a Map (key: logicalPath, value: physicalPath)
 export class Metadata extends Map<string, string> {
@@ -31,7 +31,7 @@ export class Metadata extends Map<string, string> {
    * @param stringified stringified metadata
    * @returns parsed metadata
    */
-  public static parse(stringified: string): Metadata {
+  public static from(stringified: string): Metadata {
     const metadata = new Metadata()
 
     if (!stringified.startsWith(this.MAGIC_BYTES)) {

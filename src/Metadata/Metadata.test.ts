@@ -4,7 +4,7 @@ import { Metadata } from './Metadata'
 describe('Metadata class', () => {
   test('parse method must work', () => {
     const stringified = '\x0C\x20\xDE\x01/foo\x00/bar'
-    const metadata = Metadata.parse(stringified)
+    const metadata = Metadata.from(stringified)
 
     expect(metadata.get('/foo')).toBe('/bar')
   })
@@ -13,7 +13,7 @@ describe('Metadata class', () => {
     const invalidStringifed = 'FOOBAR'
 
     expect(() => {
-      Metadata.parse(invalidStringifed)
+      Metadata.from(invalidStringifed)
     }).toThrow()
   })
 
@@ -21,7 +21,7 @@ describe('Metadata class', () => {
     const invalidStringifed = '\x0C\x20\xDE\x01/foo\x00/bar\x00/evil'
 
     expect(() => {
-      Metadata.parse(invalidStringifed)
+      Metadata.from(invalidStringifed)
     }).toThrow()
   })
 
@@ -36,7 +36,7 @@ describe('Metadata class', () => {
     const a = new Metadata()
     a.set('/foo', '/bar')
 
-    const b = Metadata.parse(a.toString())
+    const b = Metadata.from(a.toString())
 
     expect(a.get('/foo')).not.toBeUndefined()
     expect(b.get('/foo')).not.toBeUndefined()
