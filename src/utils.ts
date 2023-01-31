@@ -17,3 +17,6 @@ export const bitflipWords = (
   word: CryptoJS.lib.WordArray
 ): CryptoJS.lib.WordArray =>
   CryptoJS.lib.WordArray.create([...word.words.map(bitflip)], word.sigBytes)
+
+export const hashSHA3 = (message: string): string =>
+  CryptoJS.SHA3(message, { outputLength: 512 }).toString(CryptoJS.enc.Hex)
