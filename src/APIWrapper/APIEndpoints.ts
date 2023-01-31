@@ -1,4 +1,4 @@
-export const FILE_API_ENDPOINT = '/api/files'
+export const FILE_API_ENDPOINT = (fileId = ''): string => `/api/files/${fileId}`
 
 export const METADATA_STORAGE_ENDPOINT = (metadataId: string): string =>
   `/metadatas/${metadataId}`
