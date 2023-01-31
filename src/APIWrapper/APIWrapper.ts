@@ -10,7 +10,7 @@ import { hashSHA3 } from '../utils'
 
 export class APIWrapper {
   constructor(
-    private readonly baseURL: URL,
+    private readonly baseURL: string,
     private readonly getFetcher: GETFetcher,
     private readonly postFetcher: POSTFetcher,
     private readonly deleteFetcher: DELETEFetcher
