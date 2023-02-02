@@ -39,7 +39,10 @@ export class Metadata extends Map<string, string> {
     }
 
     // remove magic bytes from stringified and split by 0x00
-    const paths = stringified.substring(this.MAGIC_BYTES.length).split('\x00')
+    const paths = stringified
+      .substring(this.MAGIC_BYTES.length)
+      .split('\x00')
+      .filter((v) => v.length > 0)
 
     // if mappings count is odd throw an error
     if (paths.length % 2 === 1) {
