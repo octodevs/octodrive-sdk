@@ -2,16 +2,16 @@
 
   // ENCRPYTED DATA FILE STRUCTURE
 
-  - MAGIC BYTES = 0x0C20DE00 <- O-C-two-O D(riv)E ENCRYPTED DATA FILE)
-  - IV (32 bytes)
-  - Salt (16 bytes)
+  - SIGNATURE = 0x0C20DE00 <- O-C-two-O D(riv)E ENCRYPTED DATA FILE)
+  - IV (16 bytes)
+  - Salt (8 bytes)
   - AES/CTR/PKCS7 DATA (n bytes)
 
 */
 
 import CryptoJS from 'crypto-js'
-import { MagicByteInvalidError, TooShortPayloadError } from '../Exceptions'
-import { bitflipWords } from '../utils'
+import { SignatureBytesNotValid, TooShortPayloadError } from '../Exceptions'
+import { uint8ArrayToWordArray, wordArrayToUint8Array } from '../utils'
 
 const AES_OPTIONS = {
   mode: CryptoJS.mode.CTR,
@@ -19,67 +19,105 @@ const AES_OPTIONS = {
 }
 
 export class EncryptedData {
-  public static readonly MAGIC_BYTES = '\x0C\x20\xDE\x00' as string
+  public static readonly SIGNATURE_BYTES = new Uint8Array([
+    0x0c, 0x20, 0xde, 0x00,
+  ])
 
   private constructor(
     public readonly cipherParams: CryptoJS.lib.CipherParams
   ) {}
 
-  public static from(cipherText: string): EncryptedData
-  public static from(plainText: string, password: string): EncryptedData
-  public static from(
-    plainOrCipherText: string,
-    password?: string
-  ): EncryptedData {
-    const isPlainText = password !== undefined
-
-    if (isPlainText) {
-      const encoded = CryptoJS.enc.Utf8.parse(plainOrCipherText)
-      const cipher = CryptoJS.AES.encrypt(encoded, password ?? '', AES_OPTIONS)
-
-      return new EncryptedData(cipher)
-    }
-
-    if (!plainOrCipherText.startsWith(EncryptedData.MAGIC_BYTES)) {
-      throw new MagicByteInvalidError()
-    }
-
-    if (plainOrCipherText.length < 4 + 32 + 16) {
+  /**
+   * Deserialize serialized encrypted buffer to encrypted object
+   *
+   * @param serialized serialized Uint8Array
+   * @returns Deserialized metadata object
+   */
+  public static deserialize(serialized: Uint8Array): EncryptedData {
+    if (serialized.length < 4 + 16 + 8) {
       throw new TooShortPayloadError()
     }
 
-    const cipher = CryptoJS.lib.CipherParams.create({
-      iv: bitflipWords(
-        CryptoJS.enc.Hex.parse(plainOrCipherText.substring(4, 4 + 32))
-      ),
-      salt: bitflipWords(
-        CryptoJS.enc.Hex.parse(plainOrCipherText.substring(4 + 32, 4 + 32 + 16))
-      ),
-      ciphertext: bitflipWords(
-        CryptoJS.enc.Hex.parse(plainOrCipherText.substring(4 + 32 + 16))
-      ),
+    const signBytes = serialized.subarray(0, 4)
+
+    if (!signBytes.every((v, i) => v === EncryptedData.SIGNATURE_BYTES[i])) {
+      throw new SignatureBytesNotValid()
+    }
+
+    const ivBytes = serialized.subarray(4, 4 + 16)
+    const saltBytes = serialized.subarray(4 + 16, 4 + 16 + 8)
+    const encryptedBytes = serialized.subarray(4 + 16 + 8)
+
+    const cipherParams = CryptoJS.lib.CipherParams.create({
+      iv: uint8ArrayToWordArray(ivBytes),
+      salt: uint8ArrayToWordArray(saltBytes),
+      ciphertext: uint8ArrayToWordArray(encryptedBytes),
     })
 
-    return new EncryptedData(cipher)
+    return new EncryptedData(cipherParams)
   }
 
-  public decrypt(password: string): string {
+  /**
+   * Serialize encrypted data object
+   *
+   * @returns serialized encrypted data buffer
+   */
+  public serialize(): Uint8Array {
+    const ivBytes = wordArrayToUint8Array(this.cipherParams.iv)
+    const saltBytes = wordArrayToUint8Array(this.cipherParams.salt)
+    const encryptedBytes = wordArrayToUint8Array(this.cipherParams.ciphertext)
+
+    const serialized = new Uint8Array(
+      EncryptedData.SIGNATURE_BYTES.length +
+        ivBytes.length +
+        saltBytes.length +
+        encryptedBytes.length
+    )
+
+    serialized.set(EncryptedData.SIGNATURE_BYTES, 0)
+    serialized.set(ivBytes, EncryptedData.SIGNATURE_BYTES.length)
+    serialized.set(
+      saltBytes,
+      EncryptedData.SIGNATURE_BYTES.length + ivBytes.length
+    )
+    serialized.set(
+      encryptedBytes,
+      EncryptedData.SIGNATURE_BYTES.length + ivBytes.length + saltBytes.length
+    )
+
+    return serialized
+  }
+
+  /**
+   * Encrypt plain text with given password
+   *
+   * @param plainText plain text buffer
+   * @param password encryption key
+   * @returns encrypted data
+   */
+  public static encrypt(
+    plainText: Uint8Array,
+    password: string
+  ): EncryptedData {
+    const plainWord = uint8ArrayToWordArray(plainText)
+    const encrypted = CryptoJS.AES.encrypt(plainWord, password, AES_OPTIONS)
+
+    return new EncryptedData(encrypted)
+  }
+
+  /**
+   * Decrypt cipher text with given password
+   *
+   * @param password encryption key
+   * @returns decrypted buffer
+   */
+  public decrypt(password: string): Uint8Array {
     const decrypted = CryptoJS.AES.decrypt(
       this.cipherParams,
       password,
       AES_OPTIONS
     )
 
-    return CryptoJS.enc.Utf8.stringify(decrypted)
-  }
-
-  public toString(): string {
-    const stringifed =
-      EncryptedData.MAGIC_BYTES +
-      this.cipherParams.iv.toString(CryptoJS.enc.Hex) +
-      this.cipherParams.salt.toString(CryptoJS.enc.Hex) +
-      this.cipherParams.ciphertext.toString(CryptoJS.enc.Hex)
-
-    return stringifed
+    return wordArrayToUint8Array(decrypted)
   }
 }

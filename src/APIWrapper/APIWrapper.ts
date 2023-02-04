@@ -27,10 +27,10 @@ export class APIWrapper {
 
     const rawData = await this.getFetcher({ url })
 
-    const encrypted = EncryptedData.from(rawData)
+    const encrypted = EncryptedData.deserialize(rawData)
     const decrypted = encrypted.decrypt(password)
 
-    return Metadata.from(decrypted)
+    return Metadata.deserialize(decrypted)
   }
 
   public async getMetadataByUsername(
@@ -46,7 +46,7 @@ export class APIWrapper {
     const url = new URL(FILE_STORAGE_ENDPOINT(fileId), this.baseURL).toString()
 
     const rawData = await this.getFetcher({ url })
-    const encrypted = EncryptedData.from(rawData)
+    const encrypted = EncryptedData.deserialize(rawData)
 
     return encrypted
   }
@@ -61,7 +61,7 @@ export class APIWrapper {
 
     await this.postFetcher({
       fileName: metadataId,
-      fileData: metadata.toString(),
+      fileData: metadata.serialize(),
       url: url.toString(),
     })
   }
@@ -73,11 +73,13 @@ export class APIWrapper {
 
     const rawData = await this.postFetcher({
       fileName: 'encrypted.bin',
-      fileData: file.toString(),
+      fileData: file.serialize(),
       url: url.toString(),
     })
 
-    const result = JSON.parse(rawData) as { path: string }
+    const data = new TextDecoder().decode(rawData)
+
+    const result = JSON.parse(data) as { path: string }
     return result.path
   }
 
