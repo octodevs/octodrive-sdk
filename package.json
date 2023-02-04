@@ -1,6 +1,6 @@
 {
   "name": "@octodevs/octodrive-sdk",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "OctoDrive - Security-first fully encrypted file storage service",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
