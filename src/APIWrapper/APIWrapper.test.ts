@@ -18,10 +18,10 @@ describe('APIWrapper class', () => {
     const mockFetcher: GETFetcher = ({ url }) => {
       expect(url).toBe(metadataPath)
 
-      return EncryptedData.from(
-        mockMetadata.toString(),
+      return EncryptedData.encrypt(
+        mockMetadata.serialize(),
         metadataPassword
-      ).toString()
+      ).serialize()
     }
 
     const api = new APIWrapBuilder()
@@ -50,10 +50,10 @@ describe('APIWrapper class', () => {
     const mockFetcher: GETFetcher = ({ url }) => {
       expect(url).toBe(metadataPath)
 
-      return EncryptedData.from(
-        mockMetadata.toString(),
+      return EncryptedData.encrypt(
+        mockMetadata.serialize(),
         metadataPassword
-      ).toString()
+      ).serialize()
     }
 
     const api = new APIWrapBuilder()
@@ -78,11 +78,14 @@ describe('APIWrapper class', () => {
 
     metadata.set('FOO', 'BAR')
 
-    const encrypted = EncryptedData.from(metadata.toString(), metadataPassword)
+    const encrypted = EncryptedData.encrypt(
+      metadata.serialize(),
+      metadataPassword
+    )
 
     const mockFetcher: POSTFetcher = ({ url, fileData, fileName }) => {
-      const recvEncrypted = EncryptedData.from(fileData)
-      const recvMetadata = Metadata.from(
+      const recvEncrypted = EncryptedData.deserialize(fileData)
+      const recvMetadata = Metadata.deserialize(
         recvEncrypted.decrypt(metadataPassword)
       )
 
@@ -90,7 +93,7 @@ describe('APIWrapper class', () => {
       expect(fileName).toBe(metadataId)
       expect(recvMetadata.get('FOO')).toBe('BAR')
 
-      return ''
+      return new Uint8Array()
     }
 
     const api = new APIWrapBuilder()
@@ -109,17 +112,21 @@ describe('APIWrapper class', () => {
     const password = 'BAR'
     const path = 'FOO'
 
-    const encrypted = EncryptedData.from(plainText, password)
+    const encoder = new TextEncoder()
+
+    const encrypted = EncryptedData.encrypt(encoder.encode(plainText), password)
 
     const mockFetcher: POSTFetcher = ({ url, fileData }) => {
-      const decrypted = EncryptedData.from(fileData).decrypt(password)
+      const decrypted = EncryptedData.deserialize(fileData).decrypt(password)
 
       expect(url).toBe(fileApiPath)
-      expect(decrypted).toBe(plainText)
+      expect(new TextDecoder().decode(decrypted)).toBe(plainText)
 
-      return JSON.stringify({
+      const res = JSON.stringify({
         path,
       })
+
+      return new TextEncoder().encode(res)
     }
 
     const api = new APIWrapBuilder()
@@ -141,7 +148,7 @@ describe('APIWrapper class', () => {
     const mockFetcher: DELETEFetcher = ({ url }) => {
       expect(url).toBe(fileApiPath)
 
-      return ''
+      return new Uint8Array()
     }
 
     const api = new APIWrapBuilder()
