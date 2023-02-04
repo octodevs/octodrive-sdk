@@ -1,7 +1,7 @@
-export class MagicByteInvalidError extends Error {
+export class SignatureBytesNotValid extends Error {
   constructor() {
-    super('invalid magic bytes')
-    this.name = 'MagicByteInvalidError'
+    super('invalid signature bytes')
+    this.name = 'SignatureBytesNotValid'
   }
 }
 

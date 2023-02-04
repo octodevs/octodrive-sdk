@@ -7,9 +7,9 @@ import { APIWrapper } from './APIWrapper'
 
 export class APIWrapBuilder {
   private baseURL: string | undefined
-  private getFetcher: GETFetcher = () => ''
-  private postFetcher: POSTFetcher = () => ''
-  private deleteFetcher: DELETEFetcher = () => ''
+  private getFetcher: GETFetcher = () => new Uint8Array()
+  private postFetcher: POSTFetcher = () => new Uint8Array()
+  private deleteFetcher: DELETEFetcher = () => new Uint8Array()
 
   public setBaseURL(baseURL: string): this {
     this.baseURL = baseURL
